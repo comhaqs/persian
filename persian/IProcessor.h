@@ -9,13 +9,13 @@
 #include "IContext.h"
 #include "PersianDefine.h"
 
+template<typename TData>
 class IProcessor {
 public:
-	typedef std::function<void(IContextPtr, TreePtr)> callback;
+	typedef std::function<void(std::shared_ptr<IContext<TData> >, data_ptr)> fun_route;
 
-	virtual bool addListen(const std::wstring& tag, callback fun) = 0;
+	virtual bool addListen(const std::string& tag, fun_route fun) = 0;
 };
-typedef std::shared_ptr<IProcessor> IProcessorPtr;
 
 
 

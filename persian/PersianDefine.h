@@ -13,7 +13,7 @@
 typedef std::shared_ptr<boost::asio::io_service> ServicePtr;
 typedef std::shared_ptr<boost::asio::ip::tcp::socket> SocketPtr;
 typedef std::shared_ptr<std::vector<unsigned char> > FramePtr;
-typedef std::shared_ptr<boost::property_tree::ptree> TreePtr;
+typedef std::shared_ptr<boost::property_tree::ptree> data_ptr;
 
 //////////////////////////////////////
 class IPlugin {
@@ -29,12 +29,9 @@ typedef std::shared_ptr<IPlugin> IPluginPtr;
 
 
 ////////////////////////////////////
-class IServerNet : public IPlugin {
+class IServerNet {
 public:
-	typedef std::function<void(FramePtr, unsigned int, SocketPtr)> callback;
-
 	virtual void setPort(const int port) = 0;
-	virtual void setCallback(callback fun) = 0;
 };
 typedef std::shared_ptr<IServerNet> IServerNetPtr;
 
@@ -44,7 +41,7 @@ class RequestPersian {
 public:
 	FramePtr pFrame;
 	std::string Route;
-	TreePtr pData;
+	data_ptr pData;
 	unsigned int Seq;
 };
 typedef std::shared_ptr<RequestPersian> RequestPersianPtr;

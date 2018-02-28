@@ -16,11 +16,11 @@ public:
 	virtual bool start();
 	virtual void stop();
 	virtual void afterStop();
-	virtual TreePtr query(boost::asio::yield_context yield, fun_type fun);
+	virtual data_ptr query(boost::asio::yield_context yield, fun_type fun);
 	virtual void exec(boost::asio::yield_context yield, const std::string sql);
 
 protected:
-	static TreePtr funSql(database_ptr pSession, const std::string sql);
+	static data_ptr funSql(database_ptr pSession, const std::string sql);
 	static void handleThread(queue_ptr pQueue);
 
 	queue_ptr m_pQueue;

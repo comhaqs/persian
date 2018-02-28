@@ -3,8 +3,9 @@
 
 #include "stdafx.h"
 #include "testCoroutine.h"
-//#include "../persian/ServerPersian.h"
-//#include "../persian/ServerTcp.h"
+#include "../persian/ServerPersian.h"
+#include "../persian/PersianDefine.h"
+
 
 #include "../persian/DatabasePersian.cpp"
 #include <Poco/Data/DataException.h>
@@ -31,14 +32,14 @@ void run(ServicePtr pService) {
 
 int main()
 {
+	typedef std::shared_ptr<boost::property_tree::ptree>TreePtr; 
 	ServicePtr pService(new ServicePtr::element_type);
-	/*
+	
+	typedef std::shared_ptr<ServerPersian<TreePtr::element_type> > ServerPersianPtr;
 	ServerPersianPtr pServerPersian(new ServerPersianPtr::element_type);
-	ServerTcpPtr pServerTcp(new ServerTcpPtr::element_type);
-	pServerTcp->setPort(1234);
-	pServerTcp->setService(pService);
-	pServerTcp->setCallback(std::bind(&ServerPersian::readFrame, pServerPersian
-		, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	pServerPersian->setPort(1234);
+	pServerPersian->setService(pService);
+	/*
 	if (!pServerPersian->start() ||  !pServerTcp->start()) {
 		return -1;
 	}
@@ -59,7 +60,7 @@ int main()
 			else {
 				std::cout << boost::this_thread::get_id() << c.value() << std::endl;
 			}
-			TreePtr pTree(new TreePtr::element_type);
+			data_ptr pTree(new data_ptr::element_type);
 			pTree->put("root.count", count);
 			return pTree;
 		});
@@ -72,7 +73,7 @@ int main()
 				std::cout << "spawn2:" << boost::this_thread::get_id() << std::endl;
 				auto pData = pDatabase->query(yield, [](IDatabase::database_ptr pSession) {
 					std::cout << "query2:" << boost::this_thread::get_id() << std::endl;
-					return TreePtr();
+					return data_ptr();
 				});
 				std::cout << "data2:" << boost::this_thread::get_id() << std::endl;
 			});

@@ -33,9 +33,6 @@
     <ClInclude Include="ILog.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ServerTcp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="IProcessor.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -66,15 +63,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="persian.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerTcp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerPersian.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ContextPersian.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DatabasePersian.cpp">

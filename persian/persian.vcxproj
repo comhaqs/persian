@@ -160,16 +160,12 @@
     <ClInclude Include="PersianDefine.h" />
     <ClInclude Include="QueueCondition.h" />
     <ClInclude Include="ServerPersian.h" />
-    <ClInclude Include="ServerTcp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ContextPersian.cpp" />
     <ClCompile Include="DatabasePersian.cpp" />
     <ClCompile Include="persian.cpp" />
-    <ClCompile Include="ServerPersian.cpp" />
-    <ClCompile Include="ServerTcp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

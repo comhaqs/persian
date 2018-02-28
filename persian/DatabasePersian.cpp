@@ -25,25 +25,25 @@ void DatabasePersian::afterStop()
 	m_Thread.timed_join(boost::posix_time::seconds(2));
 }
 
-TreePtr DatabasePersian::query(boost::asio::yield_context yield, fun_type fun)
+data_ptr DatabasePersian::query(boost::asio::yield_context yield, fun_type fun)
 {
 	return queryDatabase(yield, fun, m_pQueue);
 }
 
 void DatabasePersian::exec(boost::asio::yield_context yield, const std::string sql)
 {
-	queryDatabase<TreePtr::element_type, database_ptr::element_type, queue_ptr::element_type>(
+	queryDatabase<data_ptr::element_type, database_ptr::element_type, queue_ptr::element_type>(
 		yield, std::bind(DatabasePersian::funSql, std::placeholders::_1, sql), m_pQueue);
 }
 
-TreePtr DatabasePersian::funSql(database_ptr pSession, const std::string sql)
+data_ptr DatabasePersian::funSql(database_ptr pSession, const std::string sql)
 {
 	if (!pSession)
 	{
-		return TreePtr();
+		return data_ptr();
 	}
 	(*pSession) << sql;
-	return TreePtr();
+	return data_ptr();
 }
 
 void DatabasePersian::handleThread(queue_ptr pQueue)

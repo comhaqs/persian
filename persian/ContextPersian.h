@@ -6,26 +6,69 @@
 #include "PersianDefine.h"
 #include <boost/asio/spawn.hpp>
 
-
-class ContextPersian : public IContext
+template<typename TData>
+class ContextPersian : public IContext<TData>
 {
 public:
-	ContextPersian(SocketPtr pSocket, IContextProxyPtr pProxy, std::string route, boost::asio::yield_context& yield);
-	ContextPersian(ContextPersian& context, boost::asio::yield_context& yield);
+	typedef std::shared_ptr<IContextProxy<TData> > proxy_ptr;
 
-	virtual bool write(TreePtr pData);
-	virtual bool writeAndWait(TreePtr pDataWrite, TreePtr& pDataRead);
-	virtual bool write(TreePtr pData, const std::string route);
-	virtual bool writeAndWait(TreePtr pDataWrite, const std::string route, TreePtr& pDataRead);
-	virtual bool wait(boost::posix_time::time_duration time);
-	virtual bool waitBySeconds(const long time);
+	ContextPersian(SocketPtr pSocket, proxy_ptr pProxy, std::string route, boost::asio::yield_context& yield) 
+		:m_pSocket(pSocket), m_pProxy(pProxy), m_Route(route), m_Yield(yield)
+	{
+	};
+
+	ContextPersian(ContextPersian& context, boost::asio::yield_context& yield) 
+		: ContextPersian(context.m_pSocket, context.m_pProxy, context.m_Route, yield)
+	{
+	};
+
+	virtual bool write(data_ptr pData) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->write(m_Yield, pData, m_Route, m_pSocket);
+	};
+
+	virtual bool writeAndWait(data_ptr pDataWrite, data_ptr& pDataRead) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->writeAndWait(m_Yield, pDataWrite, m_Route, m_pSocket, pDataRead);
+	};
+
+	virtual bool write(data_ptr pData, const std::string route) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->write(m_Yield, pData, route);
+	};
+
+	virtual bool writeAndWait(data_ptr pDataWrite, const std::string route, data_ptr& pDataRead) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->writeAndWait(m_Yield, pDataWrite, route, pDataRead);
+	};
+
+	virtual bool wait(boost::posix_time::time_duration time) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->wait(m_Yield, time);
+	};
+
+	virtual bool waitBySeconds(const long time) {
+		if (!m_pProxy) {
+			return false;
+		}
+		return m_pProxy->wait(m_Yield, boost::posix_time::seconds(time));
+	};
 protected:
 	SocketPtr m_pSocket;
-	IContextProxyPtr m_pProxy;
-	boost::asio::yield_context& m_Yield;
+	proxy_ptr m_pProxy;
+	boost::asio::yield_context m_Yield;
 	std::string m_Route;
 };
-typedef std::shared_ptr<ContextPersian> ContextPersianPtr;
 
 
 
