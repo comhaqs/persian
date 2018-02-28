@@ -14,6 +14,8 @@
 #include <boost/date_time.hpp>
 //#pragma comment (lib,"oci.lib")
 
+using namespace Poco::Data::Keywords;
+
 void run(ServicePtr pService) {
 	try {
 		std::cout <<"run:"<< boost::this_thread::get_id() << std::endl;
@@ -45,12 +47,13 @@ int main()
 	}
 	*/
 
+	typedef std::shared_ptr<DatabasePersian<TreePtr::element_type> > DatabasePersianPtr;
 	DatabasePersianPtr pDatabase(new DatabasePersianPtr::element_type);
 	pDatabase->start();
 	std::cout << "main:" << boost::this_thread::get_id() << std::endl;
 	boost::asio::spawn(*pService, [pDatabase, pService](boost::asio::yield_context yield) {
 		std::cout <<"spawn:"<< boost::this_thread::get_id() << std::endl;
-		auto pData = pDatabase->query(yield, [](IDatabase::database_ptr pSession) {
+		auto pData = pDatabase->query(yield, [](DatabasePersianPtr::element_type::database_ptr pSession) {
 			int count = 0;
 			Poco::Nullable<int> c;
 			(*pSession) << "select count(*) from city", into(c), now;
@@ -60,7 +63,7 @@ int main()
 			else {
 				std::cout << boost::this_thread::get_id() << c.value() << std::endl;
 			}
-			data_ptr pTree(new data_ptr::element_type);
+			TreePtr pTree(new TreePtr::element_type);
 			pTree->put("root.count", count);
 			return pTree;
 		});
@@ -71,9 +74,9 @@ int main()
 			std::cout << "post2:" << boost::this_thread::get_id() << std::endl;
 			boost::asio::spawn(*pService, [pDatabase] (boost::asio::yield_context yield){
 				std::cout << "spawn2:" << boost::this_thread::get_id() << std::endl;
-				auto pData = pDatabase->query(yield, [](IDatabase::database_ptr pSession) {
+				auto pData = pDatabase->query(yield, [](DatabasePersianPtr::element_type::database_ptr pSession) {
 					std::cout << "query2:" << boost::this_thread::get_id() << std::endl;
-					return data_ptr();
+					return TreePtr();
 				});
 				std::cout << "data2:" << boost::this_thread::get_id() << std::endl;
 			});

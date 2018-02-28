@@ -12,7 +12,7 @@
 template<typename TData>
 class IProcessor {
 public:
-	typedef std::function<void(std::shared_ptr<IContext<TData> >, data_ptr)> fun_route;
+	typedef std::function<void(std::shared_ptr<IContext<TData> >, std::shared_ptr<TData>)> fun_route;
 
 	virtual bool addListen(const std::string& tag, fun_route fun) = 0;
 };

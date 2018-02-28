@@ -13,7 +13,7 @@
 typedef std::shared_ptr<boost::asio::io_service> ServicePtr;
 typedef std::shared_ptr<boost::asio::ip::tcp::socket> SocketPtr;
 typedef std::shared_ptr<std::vector<unsigned char> > FramePtr;
-typedef std::shared_ptr<boost::property_tree::ptree> data_ptr;
+typedef std::shared_ptr<boost::property_tree::ptree> TreePtr;
 
 //////////////////////////////////////
 class IPlugin {
@@ -37,24 +37,30 @@ typedef std::shared_ptr<IServerNet> IServerNetPtr;
 
 
 //////////////////////////////////////
-class RequestPersian {
+template<typename TData>
+class RequestBase {
 public:
 	FramePtr pFrame;
 	std::string Route;
-	data_ptr pData;
+	std::shared_ptr<TData> pData;
 	unsigned int Seq;
 };
-typedef std::shared_ptr<RequestPersian> RequestPersianPtr;
+typedef RequestBase<TreePtr::element_type> RequestPersian;
+typedef std::shared_ptr<RequestBase<TreePtr::element_type> > RequestPersianPtr;
 
-typedef RequestPersian ResponsePersian;
+template<typename TData>
+class ResponseBase : public RequestBase<TData> {
+public:
+};
+typedef ResponseBase<TreePtr::element_type> ResponsePersian;
 typedef std::shared_ptr<ResponsePersian> ResponsePersianPtr;
 /////////////////////////////////////////
+template<typename TData>
 class IProtocol {
 public:
-	virtual bool encode(RequestPersianPtr pRequest) = 0;
-	virtual bool decode(ResponsePersianPtr pResponse) = 0;
+	virtual bool encode(std::shared_ptr<RequestBase<TData> > pRequest) = 0;
+	virtual bool decode(std::shared_ptr<ResponseBase<TData> > pResponse) = 0;
 };
-typedef std::shared_ptr<IProtocol> IProtocolPtr;
 
 ///////////////////////////////////////////
 template<typename TReturn, typename TDatabase, typename TQueue>

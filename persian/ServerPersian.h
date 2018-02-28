@@ -25,6 +25,9 @@ public:
 	typedef std::function<void (data_ptr)> call_seq;
 	typedef std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor_ptr;
 	typedef std::shared_ptr<ContextPersian<TData> > context_ptr;
+	typedef std::shared_ptr<RequestBase<TData> > request_ptr;
+	typedef std::shared_ptr<ResponseBase<TData> > response_ptr;
+	typedef std::shared_ptr<IProtocol<TData> > protocol_ptr;
 	#define FRAME_MAX 256
 
 	virtual bool start() {
@@ -79,9 +82,13 @@ public:
 	virtual void setService(ServicePtr pService) {
 		m_pService = pService;
 	};
+
+	virtual void setProtocol(protocol_ptr pProtocol) {
+		m_pProtocol = pProtocol;
+	};
 	
 	virtual bool write(boost::asio::yield_context yield, data_ptr pData, const std::string route, SocketPtr pSocket) {
-		RequestPersianPtr pRequest(new RequestPersianPtr::element_type);
+		request_ptr pRequest(new request_ptr::element_type);
 		pRequest->pData = pData;
 		if (m_pProtocol && !m_pProtocol->encode(pRequest)) {
 			return false;
@@ -103,7 +110,7 @@ public:
 	};
 
 	virtual bool writeAndWait(boost::asio::yield_context yield, data_ptr pDataWrite, const std::string route, SocketPtr pSocket, data_ptr& pDataRead) {
-		RequestPersianPtr pRequest(new RequestPersianPtr::element_type);
+		request_ptr pRequest(new request_ptr::element_type);
 		pRequest->pData = pDataWrite;
 		pRequest->Seq = getSeq();
 		if (m_pProtocol && !m_pProtocol->encode(pRequest)) {
@@ -136,7 +143,7 @@ public:
 	
 protected:
 	virtual void readFrame(FramePtr pFrame, unsigned int count, SocketPtr pSocket) {
-		ResponsePersianPtr pResponse(new ResponsePersianPtr::element_type);
+		response_ptr pResponse(new response_ptr::element_type);
 		pResponse->pFrame = FramePtr(new FramePtr::element_type(pFrame->begin(), pFrame->begin() + count));
 		if (m_pProtocol && !m_pProtocol->decode(pResponse)) {
 			return;
@@ -168,16 +175,16 @@ protected:
 			if (ec) {
 				break;
 			}
-			RequestPersianPtr pRequest(new RequestPersianPtr::element_type);
-			pRequest->pFrame = FramePtr(new FramePtr::element_type(pFrame->begin(), pFrame->begin() + count));
-			if (m_pProtocol && !m_pProtocol->decode(pRequest)) {
+			response_ptr pResponse(new response_ptr::element_type);
+			pResponse->pFrame = FramePtr(new FramePtr::element_type(pFrame->begin(), pFrame->begin() + count));
+			if (m_pProtocol && !m_pProtocol->decode(pResponse)) {
 				continue;
 			}
-			auto Iter = m_MapCallSeq.find(pRequest->Seq);
+			auto Iter = m_MapCallSeq.find(pResponse->Seq);
 			if (m_MapCallSeq.end() == Iter) {
 				continue;
 			}
-			(Iter->second)(pRequest->pData);
+			(Iter->second)(pResponse->pData);
 		}
 	};
 
@@ -190,16 +197,16 @@ protected:
 			if (ec) {
 				break;
 			}
-			RequestPersianPtr pRequest(new RequestPersianPtr::element_type);
-			pRequest->pFrame = FramePtr(new FramePtr::element_type(pFrame->begin(), pFrame->begin() + count));
-			if (m_pProtocol && !m_pProtocol->decode(pRequest)) {
+			response_ptr pResponse(new response_ptr::element_type);
+			pResponse->pFrame = FramePtr(new FramePtr::element_type(pFrame->begin(), pFrame->begin() + count));
+			if (m_pProtocol && !m_pProtocol->decode(pResponse)) {
 				continue;
 			}
-			auto Iter = m_MapCallSeq.find(pRequest->Seq);
+			auto Iter = m_MapCallSeq.find(pResponse->Seq);
 			if (m_MapCallSeq.end() == Iter) {
 				continue;
 			}
-			(Iter->second)(pRequest->pData);
+			(Iter->second)(pResponse->pData);
 		}
 	};
 
@@ -244,7 +251,7 @@ protected:
 
 	std::map<std::string, std::vector<fun_route> > m_MapCallback;
 	std::map<std::string, InfoRoutePtr> m_MapRoute;
-	IProtocolPtr m_pProtocol;
+	protocol_ptr m_pProtocol;
 	std::atomic_uint16_t m_Seq;
 	std::map<int, call_seq> m_MapCallSeq;
 	ServicePtr m_pService;
