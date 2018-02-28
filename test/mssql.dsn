@@ -1,0 +1,9 @@
+[ODBC]
+DRIVER=SQL Server
+UID=sa
+PWD=wasion
+WSID=SOLARWIND
+APP=SOCI Test Application
+SERVER=192.168.224.232
+DATABASE=AMR_YTH
+Description=SQL on AppVeyor
